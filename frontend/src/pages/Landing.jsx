@@ -5,9 +5,9 @@ import InteractiveSandbox from '../components/InteractiveSandbox';
 import { useAuth } from '../context/AuthContext';
 import { register as apiRegister } from '../api/client';
 
-export default function Landing() {
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [authMode, setAuthMode] = useState('login'); // 'login' or 'register'
+export default function Landing({ initialDrawerOpen = false, initialAuthMode = 'login' }) {
+  const [drawerOpen, setDrawerOpen] = useState(initialDrawerOpen);
+  const [authMode, setAuthMode] = useState(initialAuthMode); // 'login' or 'register'
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');

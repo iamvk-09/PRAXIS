@@ -2,8 +2,6 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
-import Login from './pages/Login';
-import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import LogEntry from './pages/LogEntry';
 import Habits from './pages/Habits';
@@ -15,7 +13,7 @@ function AppRoutes() {
   const location = useLocation();
 
   // Bypass loading state for the public landing page to ensure instant initial render
-  if (loading && location.pathname !== '/') {
+  if (loading && location.pathname !== '/' && location.pathname !== '/login' && location.pathname !== '/register') {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0A0A0F' }}>
         <div style={{ textAlign: 'center' }}>
@@ -28,8 +26,8 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
-      <Route path="/register" element={user ? <Navigate to="/dashboard" replace /> : <Register />} />
+      <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Landing initialDrawerOpen={true} initialAuthMode="login" />} />
+      <Route path="/register" element={user ? <Navigate to="/dashboard" replace /> : <Landing initialDrawerOpen={true} initialAuthMode="register" />} />
       <Route path="/dashboard" element={
         <ProtectedRoute>
           <Navbar />
