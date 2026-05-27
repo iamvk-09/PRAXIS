@@ -1,0 +1,3 @@
+@echo off
+echo Starting MySQL 8.4...
+"C:\Program Files\MySQL\MySQL Server 8.4\bin\mysqld.exe" --datadir="C:\ProgramData\MySQL\data" --port=3306 --console --log-error="C:\ProgramData\MySQL\mysql_error.log"

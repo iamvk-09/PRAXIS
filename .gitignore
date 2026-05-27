@@ -1,0 +1,26 @@
+# Backend secrets
+backend/src/main/resources/application.properties
+
+# Maven
+backend/target/
+backend/.mvn/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Python (old backend, if lingering)
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.class
+
+# OS
+.DS_Store
+Thumbs.db
