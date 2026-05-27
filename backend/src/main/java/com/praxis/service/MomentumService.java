@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @Service
 public class MomentumService {
@@ -67,18 +69,25 @@ public class MomentumService {
     }
 
     private int getConsecutiveHitDays(User user, List<Habit> activeHabits, LocalDate beforeDate) {
+        if (activeHabits.isEmpty()) return 0;
+
+        LocalDate start = beforeDate.minusDays(30);
+        List<HabitCompletion> completions = completionRepo.findByHabitInAndDateBetween(
+                activeHabits, start, beforeDate.minusDays(1));
+
+        // Group completions by date in-memory
+        Map<LocalDate, Long> completedCountsByDate = new HashMap<>();
+        for (HabitCompletion c : completions) {
+            if (Boolean.TRUE.equals(c.getCompleted())) {
+                completedCountsByDate.merge(c.getDate(), 1L, Long::sum);
+            }
+        }
+
         int count = 0;
         LocalDate check = beforeDate.minusDays(1);
-
         for (int i = 0; i < 30; i++) {
-            double rate;
-            if (activeHabits.isEmpty()) {
-                // Check if a log exists for this date
-                rate = 1.0;
-            } else {
-                long completed = completionRepo.countCompletedByHabitsAndDate(activeHabits, check);
-                rate = (double) completed / activeHabits.size();
-            }
+            long completed = completedCountsByDate.getOrDefault(check, 0L);
+            double rate = (double) completed / activeHabits.size();
 
             if (rate >= 0.5) {
                 count++;

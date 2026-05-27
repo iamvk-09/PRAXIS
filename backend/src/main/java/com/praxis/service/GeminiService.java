@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
+import java.time.Duration;
 
 @Service
 public class GeminiService {
@@ -21,8 +23,14 @@ public class GeminiService {
     @Value("${gemini.api.key}")
     private String apiKey;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    public GeminiService() {
+        JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory();
+        requestFactory.setReadTimeout(Duration.ofSeconds(20));
+        this.restTemplate = new RestTemplate(requestFactory);
+    }
 
     // ─── Default fallback ────────────────────────────────────
     private Map<String, Object> defaultExtraction() {
@@ -43,7 +51,10 @@ public class GeminiService {
             body.put("contents", List.of(Map.of(
                     "parts", List.of(Map.of("text", prompt))
             )));
-            body.put("generationConfig", Map.of("temperature", temperature));
+            body.put("generationConfig", Map.of(
+                    "temperature", temperature,
+                    "responseMimeType", "application/json"
+            ));
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
