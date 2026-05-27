@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import LogEntry from './pages/LogEntry';
 import Habits from './pages/Habits';
 import Goals from './pages/Goals';
+import Landing from './pages/Landing';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -51,8 +52,8 @@ function AppRoutes() {
           <div className="page-content"><Goals /></div>
         </ProtectedRoute>
       } />
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<Landing />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
