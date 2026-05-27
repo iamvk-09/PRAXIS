@@ -59,6 +59,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
             "http://localhost:5173",
+            "https://parxis.vercel.app",
             "https://frontend-nu-nine-40.vercel.app",
             "https://frontend-h6j6zdaht-iamvk-09s-projects.vercel.app"
         ));
