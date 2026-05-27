@@ -9,32 +9,34 @@ export default function LiquidBackground() {
     const ctx = canvas.getContext('2d');
     let animationFrameId;
 
-    let width = window.innerWidth;
-    let height = window.innerHeight;
+    // Sub-sample canvas size to reduce pixel load by 94%
+    const scaleFactor = 4;
+    let width = window.innerWidth / scaleFactor;
+    let height = window.innerHeight / scaleFactor;
     canvas.width = width;
     canvas.height = height;
 
     const resize = () => {
-      width = window.innerWidth;
-      height = window.innerHeight;
+      width = window.innerWidth / scaleFactor;
+      height = window.innerHeight / scaleFactor;
       canvas.width = width;
       canvas.height = height;
     };
     window.addEventListener('resize', resize);
 
-    // Initial soft fluid blobs
+    // Initial soft fluid blobs (scaled down radii)
     const colors = ['#7C6AF7', '#9B8FFF', '#34D399', '#7C6AF7', '#1C1C28'];
     const blobs = Array.from({ length: 5 }).map((_, i) => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 1.5,
-      vy: (Math.random() - 0.5) * 1.5,
-      radius: Math.random() * 250 + 200, // Large blobs for a liquid feel
+      vx: (Math.random() - 0.5) * 1.0,
+      vy: (Math.random() - 0.5) * 1.0,
+      radius: Math.random() * 60 + 50, // Scaled down radius for the smaller canvas
       color: colors[i % colors.length]
     }));
 
-    let mouseX = width / 2;
-    let mouseY = height / 2;
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
 
     const handleMouseMove = (e) => {
       mouseX = e.clientX;
@@ -48,6 +50,10 @@ export default function LiquidBackground() {
       // Screen mode naturally makes the colors bleed and glow together
       ctx.globalCompositeOperation = 'screen';
 
+      // Scale mouse position to the sub-sampled coordinate space
+      const mx = mouseX / scaleFactor;
+      const my = mouseY / scaleFactor;
+
       blobs.forEach((blob) => {
         // Bounds checking (bounce)
         if (blob.x < -blob.radius) blob.vx *= -1;
@@ -55,20 +61,20 @@ export default function LiquidBackground() {
         if (blob.y < -blob.radius) blob.vy *= -1;
         if (blob.y > height + blob.radius) blob.vy *= -1;
 
-        // Attract softly towards mouse
-        const dx = mouseX - blob.x;
-        const dy = mouseY - blob.y;
+        // Attract softly towards scaled mouse coordinates
+        const dx = mx - blob.x;
+        const dy = my - blob.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist > 0 && dist < 600) {
+        if (dist > 0 && dist < 150) { // Scaled down attraction radius
           blob.vx += (dx / dist) * 0.015;
           blob.vy += (dy / dist) * 0.015;
         }
 
         // Limit speed
         const speed = Math.sqrt(blob.vx * blob.vx + blob.vy * blob.vy);
-        if (speed > 2.5) {
-          blob.vx = (blob.vx / speed) * 2.5;
-          blob.vy = (blob.vy / speed) * 2.5;
+        if (speed > 2.0) {
+          blob.vx = (blob.vx / speed) * 2.0;
+          blob.vy = (blob.vy / speed) * 2.0;
         }
 
         blob.x += blob.vx;
@@ -109,15 +115,16 @@ export default function LiquidBackground() {
           height: '100%',
           zIndex: 0,
           pointerEvents: 'none',
-          filter: 'blur(30px) url(#gooey)',
-          opacity: 0.85
+          filter: 'blur(8px) url(#gooey)', // Reduced blur because canvas size is smaller
+          opacity: 0.85,
+          objectFit: 'cover'
         }}
       />
       <svg width="0" height="0" style={{ position: 'absolute' }}>
         <defs>
           <filter id="gooey">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="30" result="blur" />
-            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 40 -20" result="goo" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur" /> {/* Scaled down stdDeviation */}
+            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -10" result="goo" />
             <feBlend in="SourceGraphic" in2="goo" />
           </filter>
         </defs>

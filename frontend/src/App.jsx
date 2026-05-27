@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
@@ -12,8 +12,10 @@ import Landing from './pages/Landing';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
-  if (loading) {
+  // Bypass loading state for the public landing page to ensure instant initial render
+  if (loading && location.pathname !== '/') {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0A0A0F' }}>
         <div style={{ textAlign: 'center' }}>
