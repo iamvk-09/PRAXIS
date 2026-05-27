@@ -128,4 +128,20 @@ public class GeminiService {
         return result != null ? result.trim()
                 : "• Could not generate insights at this time. Please try again later.";
     }
+
+    // ─── chatWithCoach ──────────────────────────────────────────
+    public String chatWithCoach(String userQuery, String contextText) {
+        String systemPrompt = """
+                You are the 'Praxis Oracle', a highly insightful, slightly witty, and highly motivating \
+                behavioral coach. You have access to the user's recent daily logs and momentum scores. \
+                Answer their question directly based on their data. If they are doing well, praise them. \
+                If they are slacking or making excuses, gently roast them and give them a highly specific \
+                action plan. Keep your response conversational, concise (under 100 words), and formatted \
+                with standard markdown for readability (bolding key points).""";
+
+        String prompt = systemPrompt + "\n\nUser Context:\n" + contextText + "\n\nUser Query:\n" + userQuery;
+        String result = callGemini(prompt, 0.8);
+        return result != null ? result.trim()
+                : "I seem to have lost my connection to the ether. Try asking me again later.";
+    }
 }

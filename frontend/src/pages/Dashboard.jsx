@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react';
 import { getLogs, getTodayLog, getMomentumHistory, getHabitCompletions, getCurrentGoal } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import MomentumScore from '../components/MomentumScore';
 import ActivityChart from '../components/ActivityChart';
 import StreakCalendar from '../components/StreakCalendar';
 import GoalCard from '../components/GoalCard';
 import InsightPanel from '../components/InsightPanel';
+import TrophyRoom from '../components/TrophyRoom';
+import AiCoachWidget from '../components/AiCoachWidget';
 
 const moodEmoji = { positive: '😊', neutral: '😐', negative: '😔' };
 const energyEmoji = { high: '⚡', medium: '⚖️', low: '🔋' };
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const [todayLog, setTodayLog] = useState(null);
   const [logs, setLogs] = useState([]);
   const [momentumHistory, setMomentumHistory] = useState([]);
@@ -69,11 +73,14 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="container" style={{ paddingTop: '2rem' }}>
+    <div className="container" style={{ paddingTop: '2rem', paddingBottom: '6rem' }}>
       <div className="dash-grid">
 
         {/* Momentum Score — full width */}
         <MomentumScore score={currentScore ?? 50} previousScore={previousScore} />
+
+        {/* Trophy Room (Gamification) */}
+        <TrophyRoom earnedBadges={user?.badges || []} />
 
         {/* Stats Row */}
         <div className="dash-stats-row">
@@ -125,6 +132,9 @@ export default function Dashboard() {
         {/* Insight Panel */}
         <InsightPanel logCount={logs.length} />
       </div>
+
+      {/* Floating AI Coach Widget */}
+      <AiCoachWidget />
     </div>
   );
 }

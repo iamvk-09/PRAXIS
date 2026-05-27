@@ -33,6 +33,11 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MomentumScore> momentumScores;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_badges", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "badge_id")
+    private List<String> badges = new java.util.ArrayList<>();
+
     // Constructors
     public User() {}
 
@@ -53,4 +58,7 @@ public class User {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public List<String> getBadges() { return badges; }
+    public void setBadges(List<String> badges) { this.badges = badges; }
 }

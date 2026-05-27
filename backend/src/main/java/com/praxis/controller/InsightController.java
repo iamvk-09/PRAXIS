@@ -35,4 +35,14 @@ public class InsightController {
     public ResponseEntity<?> momentumHistory(Authentication auth) {
         return ResponseEntity.ok(insightService.getMomentumHistory(currentUser(auth)));
     }
+
+    @PostMapping("/chat")
+    public ResponseEntity<?> chat(Authentication auth, @RequestBody Map<String, String> payload) {
+        String query = payload.get("query");
+        if (query == null || query.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Query cannot be empty"));
+        }
+        String response = insightService.chatWithOracle(currentUser(auth), query);
+        return ResponseEntity.ok(Map.of("response", response));
+    }
 }

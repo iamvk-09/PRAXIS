@@ -65,4 +65,18 @@ public class InsightService {
         }
         return sb.toString();
     }
+
+    public String chatWithOracle(User user, String query) {
+        LocalDate from = LocalDate.now().minusDays(13);
+        List<DailyLog> logs = logRepo.findByUserAndDateBetweenOrderByDateAsc(user, from, LocalDate.now());
+        List<MomentumScore> scores = momentumRepo.findByUserAndDateBetweenOrderByDateAsc(user, from, LocalDate.now());
+
+        StringBuilder context = new StringBuilder("Recent Logs:\n");
+        context.append(formatLogs(logs)).append("\nRecent Momentum Scores:\n");
+        for (MomentumScore ms : scores) {
+            context.append(ms.getDate()).append(": ").append(Math.round(ms.getScore() * 100.0) / 100.0).append("\n");
+        }
+        
+        return geminiService.chatWithCoach(query, context.toString());
+    }
 }

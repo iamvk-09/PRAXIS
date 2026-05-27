@@ -81,7 +81,8 @@ public class AuthController {
             return ResponseEntity.ok(Map.of(
                     "is_authenticated", true,
                     "username", user.getUsername(),
-                    "user_id", user.getId()
+                    "user_id", user.getId(),
+                    "badges", user.getBadges()
             ));
         } catch (Exception e) {
             return ResponseEntity.status(401).body(Map.of("is_authenticated", false));

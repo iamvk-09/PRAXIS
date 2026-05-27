@@ -18,16 +18,19 @@ public class LogService {
     private final GeminiService geminiService;
     private final HabitService habitService;
     private final MomentumService momentumService;
+    private final AwardService awardService;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public LogService(DailyLogRepository logRepo,
                       GeminiService geminiService,
                       HabitService habitService,
-                      MomentumService momentumService) {
+                      MomentumService momentumService,
+                      AwardService awardService) {
         this.logRepo = logRepo;
         this.geminiService = geminiService;
         this.habitService = habitService;
         this.momentumService = momentumService;
+        this.awardService = awardService;
     }
 
     @Transactional
@@ -60,6 +63,7 @@ public class LogService {
         // Update habit completions & momentum
         habitService.updateCompletions(user, logDate, activities);
         momentumService.recalculate(user, logDate);
+        awardService.evaluateBadges(user, saved);
 
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("log_id", saved.getId());
