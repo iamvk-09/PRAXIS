@@ -63,7 +63,6 @@ public class GoalService {
                 .stream().map(this::toResponse).toList();
     }
 
-    @Transactional
     public String completeWeek(User user) throws Exception {
         LocalDate weekStart = getMondayOfCurrentWeek();
         WeeklyGoal goal = goalRepo.findByUserAndWeekStart(user, weekStart)

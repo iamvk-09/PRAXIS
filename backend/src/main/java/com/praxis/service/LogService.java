@@ -33,7 +33,6 @@ public class LogService {
         this.awardService = awardService;
     }
 
-    @Transactional
     public Map<String, Object> submitLog(User user, String text, String dateStr) throws Exception {
         LocalDate logDate = (dateStr != null && !dateStr.isBlank())
                 ? LocalDate.parse(dateStr)
