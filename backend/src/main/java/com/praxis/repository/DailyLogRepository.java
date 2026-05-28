@@ -12,4 +12,5 @@ public interface DailyLogRepository extends JpaRepository<DailyLog, Long> {
     List<DailyLog> findByUserAndDateBetweenOrderByDateDesc(User user, LocalDate from, LocalDate to);
     List<DailyLog> findByUserAndDateBetweenOrderByDateAsc(User user, LocalDate from, LocalDate to);
     List<DailyLog> findTop7ByUserOrderByDateDesc(User user);
+    long countByUser(User user);
 }
