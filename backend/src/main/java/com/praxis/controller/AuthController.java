@@ -6,6 +6,7 @@ import com.praxis.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -58,6 +59,8 @@ public class AuthController {
             ));
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid username or password"));
+        } catch (DataAccessException e) {
+            return ResponseEntity.status(503).body(Map.of("error", "Service temporarily unavailable. Please try again in a few seconds."));
         }
     }
 

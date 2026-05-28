@@ -30,15 +30,34 @@ export default function Landing({ initialDrawerOpen = false, initialAuthMode = '
     }
 
     setLoading(true);
-    try {
+    const attemptAuth = async () => {
       if (authMode === 'register') {
         await apiRegister(username.trim(), password);
         await login(username.trim(), password);
       } else {
         await login(username.trim(), password);
       }
+    };
+
+    try {
+      await attemptAuth();
       navigate('/dashboard');
     } catch (err) {
+      // 503 = backend cold start / DB not ready — auto-retry once after 3s
+      if (err.response?.status === 503) {
+        setError('⏳ Waking up the server, retrying in 3 seconds…');
+        setTimeout(async () => {
+          try {
+            await attemptAuth();
+            navigate('/dashboard');
+          } catch (retryErr) {
+            setError(retryErr.response?.data?.error || `${authMode === 'login' ? 'Login' : 'Registration'} failed. Please try again.`);
+          } finally {
+            setLoading(false);
+          }
+        }, 3000);
+        return; // don't hit finally yet
+      }
       setError(err.response?.data?.error || `${authMode === 'login' ? 'Login' : 'Registration'} failed.`);
     } finally {
       setLoading(false);
