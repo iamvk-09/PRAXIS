@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -11,6 +12,7 @@ const navLinks = [
 export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -24,6 +26,7 @@ export default function Navbar() {
           PRAXIS
         </NavLink>
 
+        {/* Desktop links */}
         <div className="navbar-links">
           {navLinks.map(({ to, label }) => (
             <NavLink
@@ -45,8 +48,39 @@ export default function Navbar() {
           <button onClick={handleLogout} className="btn-logout">
             Logout
           </button>
+
+          {/* Hamburger — mobile only */}
+          <button
+            className="hamburger"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label="Toggle menu"
+          >
+            <span className={`ham-line ${menuOpen ? 'open' : ''}`} />
+            <span className={`ham-line ${menuOpen ? 'open' : ''}`} />
+            <span className={`ham-line ${menuOpen ? 'open' : ''}`} />
+          </button>
         </div>
       </div>
+
+      {/* Mobile dropdown */}
+      {menuOpen && (
+        <div className="mobile-nav" onClick={() => setMenuOpen(false)}>
+          {navLinks.map(({ to, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                `mobile-nav-link${isActive ? ' nav-link-active' : ''}`
+              }
+            >
+              {label}
+            </NavLink>
+          ))}
+          <button onClick={handleLogout} className="mobile-logout">
+            Logout
+          </button>
+        </div>
+      )}
     </nav>
   );
 }

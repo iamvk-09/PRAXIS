@@ -4,8 +4,13 @@ export default function MomentumScore({ score, previousScore }) {
   const [displayScore, setDisplayScore] = useState(0);
   const animRef = useRef(null);
 
+  const hasScore = score !== null && score !== undefined;
+
   useEffect(() => {
-    if (score === undefined || score === null) return;
+    if (!hasScore) {
+      setDisplayScore(0);
+      return;
+    }
     const target = Math.round(score);
     const duration = 1000;
     const start = performance.now();
@@ -32,33 +37,51 @@ export default function MomentumScore({ score, previousScore }) {
     return '#7C6AF7';
   };
 
-  const color = getColor(displayScore);
-  const trend = previousScore !== undefined && score !== undefined
+  const color = hasScore ? getColor(displayScore) : 'var(--text-sec)';
+  const trend = previousScore !== undefined && score !== undefined && previousScore !== null
     ? score - previousScore
     : null;
 
   return (
     <div className="momentum-card">
       <div className="momentum-label">MOMENTUM</div>
-      <div className="momentum-score" style={{ color }}>
-        {displayScore}
-      </div>
-      <div className="momentum-sub">
-        <span className="momentum-outof">/ 100</span>
-        {trend !== null && (
-          <span
-            className={`momentum-trend ${trend >= 0 ? 'trend-up' : 'trend-down'}`}
-          >
-            {trend >= 0 ? '↑' : '↓'} {Math.abs(Math.round(trend))} pts
-          </span>
-        )}
-      </div>
-      <div className="momentum-bar-container">
-        <div
-          className="momentum-bar"
-          style={{ width: `${displayScore}%`, backgroundColor: color }}
-        />
-      </div>
+      {hasScore ? (
+        <>
+          <div className="momentum-score" style={{ color }}>
+            {displayScore}
+          </div>
+          <div className="momentum-sub">
+            <span className="momentum-outof">/ 100</span>
+            {trend !== null && (
+              <span
+                className={`momentum-trend ${trend >= 0 ? 'trend-up' : 'trend-down'}`}
+              >
+                {trend >= 0 ? '↑' : '↓'} {Math.abs(Math.round(trend))} pts
+              </span>
+            )}
+          </div>
+          <div className="momentum-bar-container">
+            <div
+              className="momentum-bar"
+              style={{ width: `${displayScore}%`, backgroundColor: color }}
+            />
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="momentum-score" style={{ color: 'var(--text-sec)', fontSize: '3.5rem' }}>
+            —
+          </div>
+          <div className="momentum-sub">
+            <span style={{ color: 'var(--text-sec)', fontSize: '0.9rem' }}>
+              Log your first day to start tracking
+            </span>
+          </div>
+          <div className="momentum-bar-container">
+            <div className="momentum-bar" style={{ width: '0%', backgroundColor: 'var(--border)' }} />
+          </div>
+        </>
+      )}
     </div>
   );
 }

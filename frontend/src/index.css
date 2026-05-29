@@ -538,7 +538,89 @@ body {
 @media (max-width: 768px) {
   .dash-stats-row { grid-template-columns: 1fr; }
   .navbar-links { display: none; }
+  .hamburger { display: flex; }
+  .navbar-username { display: none; }
   .momentum-score { font-size: 5rem; }
+}
+
+/* ── Hamburger Button ─────────────────────────────────── */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.4rem;
+  margin-left: 0.5rem;
+}
+.ham-line {
+  width: 22px;
+  height: 2px;
+  background: var(--text-sec);
+  border-radius: 2px;
+  transition: all 0.25s;
+  display: block;
+}
+
+/* ── Mobile Nav Dropdown ──────────────────────────────── */
+.mobile-nav {
+  display: none;
+  flex-direction: column;
+  padding: 0.75rem 1.5rem 1rem;
+  border-top: 1px solid var(--border);
+  background: rgba(10,10,15,0.97);
+  backdrop-filter: blur(16px);
+  gap: 0.25rem;
+  animation: fadeIn 0.2s ease;
+}
+@media (max-width: 768px) {
+  .mobile-nav { display: flex; }
+}
+.mobile-nav-link {
+  padding: 0.75rem 0.75rem;
+  border-radius: 0.5rem;
+  color: var(--text-sec);
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.mobile-nav-link:hover { color: var(--text); background: var(--surface-el); }
+.mobile-logout {
+  margin-top: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  color: var(--text-sec);
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-align: left;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s;
+}
+.mobile-logout:hover { border-color: var(--danger); color: var(--danger); }
+
+/* ── Ellipsis Animation ───────────────────────────────── */
+@keyframes ellipsis {
+  0%   { content: '.'; }
+  33%  { content: '..'; }
+  66%  { content: '...'; }
+  100% { content: '.'; }
+}
+.ellipsis-dots::after {
+  content: '...';
+  display: inline-block;
+  animation: ellipsis-fade 1.2s steps(3, end) infinite;
+  width: 1.5em;
+  text-align: left;
+}
+@keyframes ellipsis-fade {
+  0%   { clip-path: inset(0 2em 0 0); }
+  33%  { clip-path: inset(0 1.3em 0 0); }
+  66%  { clip-path: inset(0 0.6em 0 0); }
+  100% { clip-path: inset(0 0 0 0); }
 }
 
 /* ── Landing Page Premium Styles ──────────────────────── */

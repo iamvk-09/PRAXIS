@@ -28,7 +28,7 @@ public class GeminiService {
 
     public GeminiService() {
         JdkClientHttpRequestFactory requestFactory = new JdkClientHttpRequestFactory();
-        requestFactory.setReadTimeout(Duration.ofSeconds(20));
+        requestFactory.setReadTimeout(Duration.ofSeconds(28));
         this.restTemplate = new RestTemplate(requestFactory);
     }
 

@@ -10,9 +10,11 @@ import { Bar } from 'react-chartjs-2';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
-function getDayName(dateStr) {
+function getDayLabel(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('en-US', { weekday: 'short' });
+  const day = d.toLocaleDateString('en-US', { weekday: 'short' });
+  const date = d.getDate();
+  return `${day} ${date}`;
 }
 
 export default function ActivityChart({ logs }) {
@@ -28,7 +30,7 @@ export default function ActivityChart({ logs }) {
   // Sort ascending
   const sorted = [...logs].sort((a, b) => a.date.localeCompare(b.date));
 
-  const labels = sorted.map((l) => getDayName(l.date));
+  const labels = sorted.map((l) => getDayLabel(l.date));
   const productive = sorted.map((l) =>
     (l.activities || [])
       .filter((a) => a.type === 'productive')

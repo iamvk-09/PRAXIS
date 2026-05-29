@@ -157,7 +157,7 @@ export default function LogEntry() {
                 <div className="spinner" style={{ width: 36, height: 36, borderWidth: 3, margin: '0 auto' }} />
                 <p className="log-loading-text">AI is extracting your habits...</p>
                 <p style={{ color: 'var(--text-sec)', fontSize: '0.8rem', marginTop: '0.5rem' }}>
-                  Gemini 1.5 Flash is analyzing your day
+                  Gemini 2.5 Flash is analyzing your day
                 </p>
               </div>
             ) : (

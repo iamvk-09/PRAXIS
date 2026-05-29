@@ -58,9 +58,10 @@ export default function Dashboard() {
   weekStart.setDate(today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1));
   const weekStartStr = weekStart.toISOString().split('T')[0];
   const weekCompletions = completions.filter(c => c.date >= weekStartStr);
-  const weekPct = weekCompletions.length > 0
-    ? Math.round((weekCompletions.filter(c => c.completed).length / weekCompletions.length) * 100)
-    : null;
+  // Only show % if there are actual tracked habits (avoid showing 0% for brand new users)
+  const weekTotal = weekCompletions.length;
+  const weekDone = weekCompletions.filter(c => c.completed).length;
+  const weekPct = weekTotal > 0 ? Math.round((weekDone / weekTotal) * 100) : null;
 
   if (loading) {
     return (
@@ -77,7 +78,7 @@ export default function Dashboard() {
       <div className="dash-grid">
 
         {/* Momentum Score — full width */}
-        <MomentumScore score={currentScore ?? 50} previousScore={previousScore} />
+        <MomentumScore score={currentScore} previousScore={previousScore} />
 
         {/* Trophy Room (Gamification) */}
         <TrophyRoom earnedBadges={user?.badges || []} />

@@ -72,6 +72,11 @@ public class InsightService {
         List<DailyLog> logs = logRepo.findByUserAndDateBetweenOrderByDateAsc(user, from, LocalDate.now());
         List<MomentumScore> scores = momentumRepo.findByUserAndDateBetweenOrderByDateAsc(user, from, LocalDate.now());
 
+        // If the user has no data yet, give them a helpful onboarding response
+        if (logs.isEmpty()) {
+            return "You haven't logged any days yet! Head to **Log Today** and tell me about your day — what you studied, worked on, or how you're feeling. Once you've logged a few days, I can start analyzing your patterns and giving you real insights. 🚀";
+        }
+
         StringBuilder context = new StringBuilder("Recent Logs:\n");
         context.append(formatLogs(logs)).append("\nRecent Momentum Scores:\n");
         for (MomentumScore ms : scores) {
