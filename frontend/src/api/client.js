@@ -5,6 +5,7 @@ const api = axios.create({
     ? 'https://praxis-f9p8.onrender.com/api' 
     : 'http://localhost:5000/api',
   withCredentials: true,
+  timeout: 30000, // 30s — prevents hanging on Render cold starts
 });
 
 // Auth

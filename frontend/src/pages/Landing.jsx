@@ -39,24 +39,46 @@ export default function Landing({ initialDrawerOpen = false, initialAuthMode = '
       }
     };
 
+    // Helper to detect cold-start / network / timeout errors
+    const isColdStart = (err) =>
+      !err.response ||
+      err.response?.status === 503 ||
+      err.code === 'ECONNABORTED' ||
+      err.code === 'ERR_NETWORK' ||
+      err.message?.toLowerCase().includes('timeout') ||
+      err.message?.toLowerCase().includes('network');
+
     try {
       await attemptAuth();
       navigate('/dashboard');
     } catch (err) {
-      // 503 = backend cold start / DB not ready — auto-retry once after 3s
-      if (err.response?.status === 503) {
-        setError('⏳ Waking up the server, retrying in 3 seconds…');
-        setTimeout(async () => {
-          try {
-            await attemptAuth();
-            navigate('/dashboard');
-          } catch (retryErr) {
-            setError(retryErr.response?.data?.error || `${authMode === 'login' ? 'Login' : 'Registration'} failed. Please try again.`);
-          } finally {
-            setLoading(false);
+      if (isColdStart(err)) {
+        // Server is cold-starting — show countdown and auto-retry
+        let seconds = 15;
+        setError(`⏳ Server is waking up… retrying in ${seconds}s`);
+        setLoading(false);
+
+        const countdown = setInterval(() => {
+          seconds -= 1;
+          if (seconds > 0) {
+            setError(`⏳ Server is waking up… retrying in ${seconds}s`);
+          } else {
+            clearInterval(countdown);
+            setError('🔄 Retrying now…');
+            setLoading(true);
+            attemptAuth()
+              .then(() => navigate('/dashboard'))
+              .catch((retryErr) => {
+                setError(
+                  isColdStart(retryErr)
+                    ? '⚠️ Server is still waking up. Please click Sign In again in a few seconds.'
+                    : retryErr.response?.data?.error || `${authMode === 'login' ? 'Login' : 'Registration'} failed. Please try again.`
+                );
+              })
+              .finally(() => setLoading(false));
           }
-        }, 3000);
-        return; // don't hit finally yet
+        }, 1000);
+        return;
       }
       setError(err.response?.data?.error || `${authMode === 'login' ? 'Login' : 'Registration'} failed.`);
     } finally {
