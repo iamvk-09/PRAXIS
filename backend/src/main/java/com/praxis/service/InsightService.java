@@ -34,7 +34,8 @@ public class InsightService {
         }
 
         String logsText = formatLogs(logs);
-        return geminiService.analyzeWeek(logsText);
+        String result = geminiService.analyzeWeek(logsText);
+        return result != null ? result : "• AI analysis is temporarily unavailable. Please try again later.";
     }
 
     public List<Map<String, Object>> getMomentumHistory(User user) {

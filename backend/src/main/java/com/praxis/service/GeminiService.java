@@ -47,9 +47,9 @@ public class GeminiService {
         return callGeminiInternal(prompt, temperature, "application/json");
     }
 
-    // ─── Core HTTP call (plain text mode) ─────────────────────
+    // ─── Core HTTP call (plain text mode — no responseMimeType set) ───
     private String callGemini(String prompt, double temperature) {
-        return callGeminiInternal(prompt, temperature, "text/plain");
+        return callGeminiInternal(prompt, temperature, null); // null = omit field, use API default
     }
 
     private String callGeminiInternal(String prompt, double temperature, String mimeType) {
@@ -124,7 +124,8 @@ public class GeminiService {
         }
     }
 
-    // ─── analyzeWeek ──────────────────────────────────────────
+    // ─── analyzeWeek ────────────────────────────────────────
+    // Returns null on failure so callers can throw a proper exception.
     public String analyzeWeek(String logsText) {
         String systemPrompt = """
                 You are a behavioral pattern analyst. Given 7 days of activity logs from a user, \
@@ -137,8 +138,7 @@ public class GeminiService {
 
         String prompt = systemPrompt + "\n\nActivity logs:\n" + logsText;
         String result = callGemini(prompt, 0.7);
-        return result != null ? result.trim()
-                : "• Could not generate insights at this time. Please try again later.";
+        return result != null ? result.trim() : null; // null signals failure to caller
     }
 
     // ─── chatWithCoach ──────────────────────────────────────────

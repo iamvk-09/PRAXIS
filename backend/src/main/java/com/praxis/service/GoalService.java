@@ -75,13 +75,12 @@ public class GoalService {
         String logsText = formatLogs(logs, goalsList);
         String summary = geminiService.analyzeWeek(logsText);
 
-        // Only persist a real summary — never store the error fallback string
-        if (summary != null && !summary.contains("Could not generate insights")) {
-            goal.setAiSummary(summary);
-            goalRepo.save(goal);
-        } else if (summary == null) {
-            throw new RuntimeException("AI analysis failed. Please try again later.");
+        // analyzeWeek returns null when the AI call fails — surface that as an error
+        if (summary == null) {
+            throw new RuntimeException("AI analysis failed — the AI service is unavailable. Please try again later.");
         }
+        goal.setAiSummary(summary);
+        goalRepo.save(goal);
         return summary;
     }
 
