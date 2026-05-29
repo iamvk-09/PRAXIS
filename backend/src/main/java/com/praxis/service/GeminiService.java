@@ -42,19 +42,31 @@ public class GeminiService {
         return d;
     }
 
-    // ─── Core HTTP call ───────────────────────────────────────
+    // ─── Core HTTP call (JSON mode) ────────────────────────────
+    private String callGeminiJson(String prompt, double temperature) {
+        return callGeminiInternal(prompt, temperature, "application/json");
+    }
+
+    // ─── Core HTTP call (plain text mode) ─────────────────────
     private String callGemini(String prompt, double temperature) {
+        return callGeminiInternal(prompt, temperature, "text/plain");
+    }
+
+    private String callGeminiInternal(String prompt, double temperature, String mimeType) {
         try {
             String url = GEMINI_URL + apiKey;
+
+            Map<String, Object> generationConfig = new HashMap<>();
+            generationConfig.put("temperature", temperature);
+            if (mimeType != null && !mimeType.isBlank()) {
+                generationConfig.put("responseMimeType", mimeType);
+            }
 
             Map<String, Object> body = new HashMap<>();
             body.put("contents", List.of(Map.of(
                     "parts", List.of(Map.of("text", prompt))
             )));
-            body.put("generationConfig", Map.of(
-                    "temperature", temperature,
-                    "responseMimeType", "application/json"
-            ));
+            body.put("generationConfig", generationConfig);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -67,7 +79,7 @@ public class GeminiService {
                        .path("content").path("parts").get(0)
                        .path("text").asText();
         } catch (Exception e) {
-            log.error("Gemini API call failed: {}", e.getMessage());
+            log.error("Gemini API call failed (mimeType={}): {}", mimeType, e.getMessage());
             return null;
         }
     }
@@ -89,7 +101,7 @@ public class GeminiService {
                 If something is mentioned as skipped or not done, include it with type "skipped" and duration_minutes 0.""";
 
         String prompt = systemPrompt + "\n\nUser log:\n" + userText;
-        String raw = callGemini(prompt, 0.1);
+        String raw = callGeminiJson(prompt, 0.1);
 
         if (raw == null) return defaultExtraction();
 

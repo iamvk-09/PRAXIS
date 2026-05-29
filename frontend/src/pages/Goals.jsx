@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getCurrentGoal, setGoal, getGoalHistory } from '../api/client';
+import { getCurrentGoal, setGoal, getGoalHistory, completeWeek } from '../api/client';
+
 
 function getMonday(d = new Date()) {
   const day = d.getDay();
@@ -33,6 +34,12 @@ export default function Goals() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [openAccordion, setOpenAccordion] = useState(null);
+  const [generatingSummary, setGeneratingSummary] = useState(false);
+  const [summaryError, setSummaryError] = useState('');
+
+  // Detect stale error fallback strings stored in DB
+  const isErrorSummary = (s) => !s || s.includes('Could not generate insights');
+
 
   const monday = getMonday(new Date());
   const weekStr = monday.toISOString().split('T')[0];
@@ -62,6 +69,7 @@ export default function Goals() {
     if (!goals.length) { setError('Please enter at least one goal.'); return; }
     setSaving(true);
     setError('');
+    setSummaryError('');
     try {
       const res = await setGoal(goals);
       setCurrentGoal(res.data);
@@ -74,6 +82,20 @@ export default function Goals() {
       setSaving(false);
     }
   };
+
+  const handleGenerateSummary = async () => {
+    setGeneratingSummary(true);
+    setSummaryError('');
+    try {
+      await completeWeek();
+      await fetchAll();
+    } catch (err) {
+      setSummaryError(err.response?.data?.error || 'AI summary failed. Please try again.');
+    } finally {
+      setGeneratingSummary(false);
+    }
+  };
+
 
   if (loading) {
     return (
@@ -168,10 +190,28 @@ export default function Goals() {
                 <span className="goal-text">{g}</span>
               </div>
             ))}
-            {currentGoal.ai_summary && (
+
+            {/* AI Summary block */}
+            {!isErrorSummary(currentGoal.ai_summary) ? (
               <div style={{ marginTop: '1rem', padding: '1rem', background: 'var(--surface-el)', borderRadius: '0.5rem', borderLeft: '3px solid var(--primary)' }}>
                 <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-sec)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>AI Summary</div>
                 <p style={{ color: 'var(--text)', fontSize: '0.9rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{currentGoal.ai_summary}</p>
+              </div>
+            ) : (
+              <div style={{ marginTop: '1rem' }}>
+                {summaryError && (
+                  <p style={{ color: 'var(--error, #f87171)', fontSize: '0.82rem', marginBottom: '0.5rem' }}>{summaryError}</p>
+                )}
+                <button
+                  id="generate-summary-btn"
+                  className="btn btn-secondary btn-sm"
+                  onClick={handleGenerateSummary}
+                  disabled={generatingSummary}
+                >
+                  {generatingSummary
+                    ? <><span className="spinner" style={{ width: 14, height: 14, borderWidth: 2 }} /> Analyzing week...</>
+                    : '✨ Generate AI Summary'}
+                </button>
               </div>
             )}
           </div>
@@ -203,15 +243,14 @@ export default function Goals() {
                         <span className="goal-text">{g}</span>
                       </div>
                     ))}
-                    {h.ai_summary && (
+                    {h.ai_summary && !isErrorSummary(h.ai_summary) ? (
                       <div style={{ marginTop: '0.75rem', padding: '0.75rem 1rem', background: 'var(--surface-el)', borderRadius: '0.5rem', borderLeft: '3px solid var(--primary)' }}>
                         <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-sec)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.4rem' }}>AI Summary</div>
                         <p style={{ color: 'var(--text)', fontSize: '0.88rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{h.ai_summary}</p>
                       </div>
-                    )}
-                    {!h.ai_summary && (
+                    ) : !h.ai_summary ? (
                       <p style={{ color: 'var(--text-sec)', fontSize: '0.82rem', fontStyle: 'italic', marginTop: '0.5rem' }}>No AI summary generated for this week.</p>
-                    )}
+                    ) : null}
                   </div>
                 )}
               </div>
